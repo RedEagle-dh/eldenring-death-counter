@@ -1,9 +1,33 @@
+import time
 import subprocess
 import sys
 
-subprocess.check_call([sys.executable, "-m", "pip", "install", "-q", "-r", "requirements.txt"])
+def check_packages():
+    required_packages = ["cv2", "pyautogui", "argparse"]  # Fügen Sie hier alle erforderlichen Pakete hinzu
+    missing_packages = []
+    for package in required_packages:
+        try:
+            __import__(package)
+        except ImportError:
+            missing_packages.append(package)
+    return missing_packages
 
-import time
+missing_packages = check_packages()
+if missing_packages:
+    print("Einige benötigte Pakete sind nicht installiert.")
+    print("Installiere fehlende Pakete...")
+
+    # Starten Sie die Installation in einem separaten Prozess
+    process = subprocess.Popen([sys.executable, "-m", "pip", "install", "-q", "-r", "requirements.txt"])
+
+    # Einfache textbasierte Fortschrittsanzeige
+    while process.poll() is None:
+        sys.stdout.write(".")
+        sys.stdout.flush()
+        time.sleep(1)  # Aktualisieren Sie jede Sekunde
+
+    print("\nInstallation abgeschlossen!")
+
 
 import cv2
 import tempfile
@@ -46,7 +70,7 @@ def find_death_screen():
 
 
 if __name__ == "__main__":
-    print("German Elden Ring death counter started successfully!")
+    print("German Elden Ring death counter started successfully! Press Ctrl+C to exit.")
     if args.dev:
         print("Started in development mode.")
     try:
